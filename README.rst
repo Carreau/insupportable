@@ -1,6 +1,3 @@
-===============================
-insupportable
-===============================
 
 .. image:: https://badge.fury.io/py/insupportable.png
     :target: http://badge.fury.io/py/insupportable
@@ -21,7 +18,7 @@ that deals with unsupported library version.
 By default come pre-configured with Python 2/3 convenience function, but works
 with other libraries and more fine grained version numbering.
 
-.. code::
+.. code-block::
 
     # warn you you have dead code if you
     # drop Python2 support
@@ -32,7 +29,7 @@ with other libraries and more fine grained version numbering.
         print("You are on python 3")
 
 
-.. code::
+.. code-block::
 
     # warn you you have dead code if you
     # drop Python2 support
@@ -49,7 +46,7 @@ Set it up to drop Python2 support.
 Quick and dirty way, modify global config, which is not recommended as it may
 affect other libraries that use this too, but super usefull. 
 
-.. code:: 
+.. code-block:: 
 
     support.config(PY2=False)
 
@@ -61,7 +58,7 @@ affect other libraries that use this too, but super usefull.
 
 warn the following:
 
-.. code::
+.. code-block::
 
     mymodule/myfile.py:3: UserWarning: You are not supporting PY2 anymore 
       if support(PY2):
@@ -70,7 +67,7 @@ warn the following:
 
 More involve way, create a config context that have effect only locally: 
 
-.. code::
+.. code-block::
 
     from insupportable import S
 
@@ -83,7 +80,7 @@ Advance configuration/custom features:
 
 Example:
 
-.. code::
+.. code-block::
     support.config(config=({
         'WindowsPhone':True,
         'Android'     :False,
@@ -94,7 +91,7 @@ Example:
     else:
         print("Probably Android - but you don't support it anymore")
 
-.. code::
+.. code-block::
         mymodule/myfile.py:1: UserWarning: WindowsPhone is the last supported feature of this group, you can simplifiy this logic. 
           if support('WindowsPhone'):
 
@@ -106,7 +103,7 @@ TODO:
 
 Write predicates and document like:
 
-.. code::
+.. code-block::
 
     if workaround('tornado==2.2'):
         # do something special
@@ -118,7 +115,7 @@ and warn if min tornado is  higher than 2.2
 
 Deprecation decorator:
 
-.. code::
+.. code-block::
 
     @deprecated_since('2.3.1',will_remove='3.0.0')
     def my_api('something'):
@@ -133,7 +130,7 @@ This case is more interesting than `support()` as there is 2 pass, the decoratio
 and the execution of the function. `will_remove` should infer next major I guess. 
 Should we add option to deprecate after/at a date for some case like API.
 
-.. code::
+.. code-block::
     
     @deprecate_after(date='2015/10/15'):
     def marty_from_the_future(self):
