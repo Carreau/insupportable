@@ -1,13 +1,14 @@
 
-.. image:: https://badge.fury.io/py/insupportable.png
-    :target: http://badge.fury.io/py/insupportable
 
-.. image:: https://travis-ci.org/Carreau/insupportable.png?branch=master
-        :target: https://travis-ci.org/Carreau/insupportable
 
-.. image:: https://pypip.in/d/insupportable/badge.png
-        :target: https://pypi.python.org/pypi/insupportable
+Some stupid badges:
 
+    .. image:: https://badge.fury.io/py/insupportable.png
+        :target: http://badge.fury.io/py/insupportable
+
+
+    .. image:: https://travis-ci.org/Carreau/insupportable.png?branch=master
+            :target: https://travis-ci.org/Carreau/insupportable
 
 I am really annoyed, more and more, especially in old project to figure out what code is a war a workaround
 for old version of python, or another library. 
@@ -18,7 +19,7 @@ that deals with unsupported library version.
 By default come pre-configured with Python 2/3 convenience function, but works
 with other libraries and more fine grained version numbering.
 
-.. code-block::
+.. code-block:: python
 
     # warn you you have dead code if you
     # drop Python2 support
@@ -29,7 +30,7 @@ with other libraries and more fine grained version numbering.
         print("You are on python 3")
 
 
-.. code-block::
+.. code-block:: python
 
     # warn you you have dead code if you
     # drop Python2 support
@@ -46,7 +47,7 @@ Set it up to drop Python2 support.
 Quick and dirty way, modify global config, which is not recommended as it may
 affect other libraries that use this too, but super usefull. 
 
-.. code-block:: 
+.. code-block::  python
 
     support.config(PY2=False)
 
@@ -67,7 +68,7 @@ warn the following:
 
 More involve way, create a config context that have effect only locally: 
 
-.. code-block::
+.. code-block:: python
 
     from insupportable import S
 
@@ -80,7 +81,8 @@ Advance configuration/custom features:
 
 Example:
 
-.. code-block::
+.. code-block:: python
+   
     support.config(config=({
         'WindowsPhone':True,
         'Android'     :False,
@@ -92,6 +94,7 @@ Example:
         print("Probably Android - but you don't support it anymore")
 
 .. code-block::
+
         mymodule/myfile.py:1: UserWarning: WindowsPhone is the last supported feature of this group, you can simplifiy this logic. 
           if support('WindowsPhone'):
 
@@ -103,7 +106,7 @@ TODO:
 
 Write predicates and document like:
 
-.. code-block::
+.. code-block:: python
 
     if workaround('tornado==2.2'):
         # do something special
@@ -115,7 +118,7 @@ and warn if min tornado is  higher than 2.2
 
 Deprecation decorator:
 
-.. code-block::
+.. code-block:: python
 
     @deprecated_since('2.3.1',will_remove='3.0.0')
     def my_api('something'):
@@ -130,7 +133,7 @@ This case is more interesting than `support()` as there is 2 pass, the decoratio
 and the execution of the function. `will_remove` should infer next major I guess. 
 Should we add option to deprecate after/at a date for some case like API.
 
-.. code-block::
+.. code-block:: python
     
     @deprecate_after(date='2015/10/15'):
     def marty_from_the_future(self):
@@ -145,11 +148,6 @@ Should we add option to deprecate after/at a date for some case like API.
 * Free software: MIT license
 * Documentation: https://insupportable.readthedocs.org.
 
-Features
---------
-
-TODO
-----
 
 
 
