@@ -39,12 +39,14 @@ for i in range(7):
 
 
 
+#support.config
 
 class S(object):
 
     def __init__(self, PY2=True, PY3=True, config=() ):
         self.PY3_supported = PY2
         self.PY2_supported = PY3
+        self.level=2
         self.featuresets = [
                 { _PY2:PY2,
                   _PY3:PY3
@@ -91,9 +93,9 @@ class S(object):
             return True
         else:
             if not self._get_featureset_support(version):
-                warn("You are not supporting %s anymore "%str(version), UserWarning, 2)
+                warn("You are not supporting %s anymore "%str(version), UserWarning, self.level)
             if self._alone_version(version):
-                warn("%s is the last supported feature of this group, you can simplifiy this logic. "%str(version), UserWarning, 2)
+                warn("%s is the last supported feature of this group, you can simplifiy this logic. "%str(version), UserWarning,self.level)
                 
             return predicates.get(version, True)
 
@@ -101,11 +103,27 @@ class S(object):
 
 
         if (not self.PY3_supported) or (not self.PY2_supported):
-            warn("You are only supporting 1 version of Python", UserWarning, 2)
+            warn("You are only supporting 1 version of Python", UserWarning, self.level)
 
         if version == PY3:
             return sys.version_info.major == 3
         elif version == PY2:
             return sys.version_info.major == 2
 
-support = S().support
+
+class CFunction(object):
+
+    def __init__(self, name, *args,**kwargs):
+        self.s = S(*args, **kwargs)
+        self.name = name
+
+    def __call__(self, *args,**kwargs):
+        sub = getattr(self.s, self.name) 
+        return sub(*args, **kwargs)
+
+    def config(self, *args, **kwargs):
+        self.s = S(*args, **kwargs)
+        self.s.level = 3
+
+
+support = CFunction('support')
