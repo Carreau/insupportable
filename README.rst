@@ -12,9 +12,15 @@ insupportable
         :target: https://pypi.python.org/pypi/insupportable
 
 
-Python Boilerplate contains all the boilerplate you need to create a Python package.
+I am really annoyed, more and more, especially in old project to figure out what code is a war a workaround
+for old version of python, or another library. 
 
-* Free software: BSD license
+This library should provide a simple way to warn you as early as possible when you can remove some legacy code.
+
+
+
+
+* Free software: MIT license
 * Documentation: https://insupportable.readthedocs.org.
 
 Features
