@@ -5,17 +5,36 @@ from  warnings import warn
 
 
 class Dum(object):
-    def __init__(self,name):
+    def __init__(self,name, predicate):
         self.name = name
+        if callable(predicate):
+            self._predicate = predicate()
+        else:
+            self._predicate = predicate
 
     def __repr__(self):
         return self.name
 
-PY3 = Dum('PY3')
-PY2 = Dum('PY2') 
+    def __nonzero__(self):
+        print('Yeahhhh PY3')
+        return self._predicate
 
-PY3 = 'PY3'
-PY2 = 'PY2'
+    def __bool__(self):
+        return self.__nonzero__()
+
+
+
+PY3 = Dum('PY3', sys.version_info >= (3,))
+PY2 = Dum('PY2', sys.version_info < (3,)) 
+
+
+_aliases  = {
+    'PY3':PY3,
+    'PY2':PY2,
+}
+
+#PY3 = 'PY3';
+#PY2 = 'PY2';
 
 
 _PY2=PY2
@@ -48,9 +67,11 @@ class S(object):
         self.PY2_supported = PY3
         self.level=2
         self.featuresets = [
-                { _PY2:PY2,
+                {
+                  _PY2:PY2,
                   _PY3:PY3
-        }]
+                }
+                ]
         self.featuresets.append(pyxy)
         self.featuresets.extend(config)
 
@@ -62,7 +83,7 @@ class S(object):
         self.know_keys=set(self.know_keys)
 
     def _known_version(self, version):
-        return (version in self.know_keys)
+        return (_aliases.get(version, version) in self.know_keys)
 
     def _alone_version(self, version):
         for fset in self.featuresets:
@@ -72,8 +93,8 @@ class S(object):
 
     def _get_featureset_support(self, version): 
         for fset in self.featuresets:
-            if version in fset: 
-                return fset[version]
+            if _aliases.get(version, version) in fset: 
+                return fset[_aliases.get(version, version)]
         return False
 
         
