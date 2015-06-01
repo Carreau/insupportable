@@ -4,16 +4,6 @@ import sys
 from  warnings import warn 
 
 
-class Dum(object):
-    def __init__(self,name):
-        self.name = name
-
-    def __repr__(self):
-        return self.name
-
-PY3 = Dum('PY3')
-PY2 = Dum('PY2') 
-
 PY3 = 'PY3'
 PY2 = 'PY2'
 
@@ -23,10 +13,15 @@ _PY3=PY3
 
 # featuresets = (name, support, predicate)
 
+
+feature_mapping = dict()
+
+
 predicates = {
  PY2:(sys.version_info.major == 2),
  PY3:(sys.version_info.major == 3),
 }
+
 
 pyxy = {}
 
@@ -36,6 +31,45 @@ for i in range(7):
     predicates[pystr+'+'] = (sys.version_info >= (3,i))
     pyxy[pystr]=True
     pyxy[pystr+'+']=False
+
+class Feature(object):
+    """
+    A feature/option/patch...etc that might be dropped at some point in the future. 
+
+    """
+
+    def __init__(self, name, predicate):
+        self.name = name
+        self.predicate = predicate
+
+
+class DiscreatFeature(Feature):
+    pass
+
+class VersionnedFeature(Feature):
+    
+    def __init__(self, name, predicate):
+        super().__init__(name, predicate)
+
+
+class FeatureGroup(object):
+
+    def __init__(self, *args):
+        self.features = args
+
+
+#class FeatureTracker(object):
+#
+#    def __init__(self, *args):
+#        self.args = args
+#
+#        self._known_versions = [f.name for g in args for f in g.features]
+#
+#
+#    def support(indetifier):
+#        pass
+
+
 
 
 
@@ -55,14 +89,24 @@ class S(object):
         self.featuresets.extend(config)
 
 
-        self.know_keys = []
+        self.known_keys = []
         for feat in self.featuresets : 
-            self.know_keys.extend(feat.keys())
+            self.known_keys.extend(feat.keys())
 
-        self.know_keys=set(self.know_keys)
+        self.known_keys=set(self.known_keys)
+
+        import copy
+        self.predicates = copy.copy(predicates)
+
+    def add_feature(self, name, predicate, supported=True):
+        if callable(predicate):
+            predicate = predicate()
+        self.predicates['name'] = predicate
+        self.known_keys.add(name)
+        self.featuresets.append({name:supported})
 
     def _known_version(self, version):
-        return (version in self.know_keys)
+        return (version in self.known_keys)
 
     def _alone_version(self, version):
         for fset in self.featuresets:
@@ -97,7 +141,7 @@ class S(object):
             if self._alone_version(version):
                 warn("%s is the last supported feature of this group, you can simplifiy this logic. "%str(version), UserWarning,self.level)
                 
-            return predicates.get(version, True)
+            return self.predicates.get(version, True)
 
 
 
