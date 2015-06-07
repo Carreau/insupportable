@@ -207,6 +207,12 @@ class CFunction(object):
 
 #######
 
+def _maybe_call(thing):
+    if callable(thing):
+        return thing()
+    else:
+        return thing
+
 class Context(object):
 
     def _default_warner(self, message, stacklevel=1):
@@ -220,7 +226,7 @@ class Context(object):
 
 
 
-    def __init__(self, version):
+    def __init__(self, version=None, pyversion=None, pysupport=None):
         """
         A configuration context
 
@@ -228,7 +234,9 @@ class Context(object):
         and will decide how the different methods will act.
 
         """
-        self._version = version
+        self._version = _maybe_call(version)
+        self._pyversion = _maybe_call(pyversion)
+        self._pysupport = _maybe_call(pysupport)
         self._warner = self._default_warner
 
     def set_warner(self, function):

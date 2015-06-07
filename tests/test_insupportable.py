@@ -1,10 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
 test_insupportable
-----------------------------------
-
 Tests for `insupportable` module.
 """
 
@@ -45,6 +40,33 @@ def test_dummy():
             else:
                 print("Python4")
         test_support()
+
+
+##########
+
+from insupportable import Context
+
+def test_deprecation_predicate(capsys):
+    """
+    Context should be able to get a predicate
+    """
+
+    import sys
+
+    c = Context(pyversion=lambda:sys.version_info, pysupport=lambda:(3,0,0))
+
+    return
+#    with pytest.raises(DeprecationWarning):
+#        @c.deprecated(version=(1,0,0))
+#        def my_deprecated_function():
+#            pass
+#
+#    with pytest.raises(DeprecationWarning):
+#        if c.deprecated(version=(1,0,0)):
+#            pass
+
+
+
 
 
 
