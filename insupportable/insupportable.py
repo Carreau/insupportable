@@ -236,31 +236,21 @@ class Context(object):
 
     def deprecated(self, version, remove):
         return DecoratorBooleanMixin(self._version, self._warner, version, remove)
-        # if self._version >= remove :
-        #     raise DeprecationWarning('deprecated')
-        # def wrapper():
-        #     if self._version >= version:
-        #          self._warner("this is pending deprecation")
-        #     else :
-        #         raise ValueError('deprecation version earlier than package version')
 
-        # def wrapping(function):
-        #     def fun(*args, **kwargs):
-        #         wrapper()
-        #         function(*args, **kwargs)
-        #     return fun
-        # return wrapping
 
 
 class DecoratorBooleanMixin(object):
     """ mixin object that trigger some action when tested:
-    - for equlity
+    - for equality
     - for nothingness
     - as a decorator.
     """
 
 
-    def __init__(self, package_version, warner, version, remove):
+    def __init__(self, package_version, warner, version, remove=None):
+        if not remove:
+            remove = [r for r in version]
+            remove [0] += 1
         self._package_version = package_version
         self._warner = warner
         self._version = version
@@ -285,7 +275,15 @@ class DecoratorBooleanMixin(object):
 
 
     def __call__(self, function):
-        """ call to setup parameter """
+        """ call to setup parameter
+
+        Basically here, we will only decorate the function, so if deprecation
+        point is reach, raise immediately, otherwise just decorate the function
+        to have a warning on function call.
+
+        we might still have to adjust the stacklevel..
+
+        """
 
         if self._deprecation_reached :
             self._on_deprecation_reached()
