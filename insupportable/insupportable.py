@@ -2,6 +2,7 @@
 
 import sys
 from  warnings import warn 
+import warnings
 
 
 class Dum(object):
@@ -137,7 +138,7 @@ class S(object):
         self.featuresets.append({name:supported})
 
     def _known_version(self, version):
-        return (_aliases.get(version, version) in self.know_keys)
+        return (_aliases.get(version, version) in self.known_keys)
 
     def _alone_version(self, version):
         for fset in self.featuresets:
@@ -199,6 +200,36 @@ class CFunction(object):
     def config(self, *args, **kwargs):
         self.s = S(*args, **kwargs)
         self.s.level = 3
+
+
+#######
+
+class Context(object):
+    pass
+
+    def __init__(self, version):
+        self._version = version
+        self._warner = warnings.warn
+
+    def set_warner(self, function):
+        self._warner = function
+
+    def deprecated(self, version, remove):
+        def wrapper():
+            if self._version >= remove :
+                raise DeprecationWarning('deprecated')
+            if self._version >= version:
+                 self._warner("this is pending deprecation")
+            else :
+                raise ValueError('deprecation version earlier than package version')
+
+        def wrapping(function):
+            def fun(*args, **kwargs):
+                wrapper()
+                function(*args, **kwargs)
+            return fun
+        return wrapping
+
 
 
 support = CFunction('support')
