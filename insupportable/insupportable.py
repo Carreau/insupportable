@@ -303,8 +303,8 @@ class DecoratorBooleanMixin(object):
             self._on_deprecation_reached()
         return True
 
-    def __zero__(self, other):
-        pass
+    def __nonzero__(self):
+        return self.__eq__(True)
 
     def __bool__(self):
         return self.__eq__(True)
