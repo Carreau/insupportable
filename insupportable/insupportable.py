@@ -234,7 +234,7 @@ class Context(object):
     def set_warner(self, function):
         self._warner = function
 
-    def deprecated(self, version, remove):
+    def deprecated(self, version, remove=None):
         return DecoratorBooleanMixin(self._version, self._warner, version, remove)
 
 
@@ -247,10 +247,11 @@ class DecoratorBooleanMixin(object):
     """
 
 
-    def __init__(self, package_version, warner, version, remove=None):
+    def __init__(self, package_version, warner, version, remove):
         if not remove:
             remove = [r for r in version]
             remove [0] += 1
+            remove = tuple(remove)
         self._package_version = package_version
         self._warner = warner
         self._version = version

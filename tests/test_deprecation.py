@@ -49,7 +49,8 @@ def test_deprecation_if_statement(capsys):
     assert 'ok' in out
 
 
-def test_deprecation_if_statement(capsys):
+def test_deprecation_if_statement2(capsys):
+    """ deprecation context in n+1 version should not do a thing"""
 
 
     c = Context(version=(1, 0, 0))
@@ -60,3 +61,33 @@ def test_deprecation_if_statement(capsys):
 
     out, err = capsys.readouterr()
     assert out == ''
+
+
+def test_deprecation_remove_optional(capsys):
+    """ remove omitted should raise on verion.major+1"""
+
+    c = Context(version=(2,0,0))
+
+    with pytest.raises(DeprecationWarning):
+        @c.deprecated(version=(1,0,0))
+        def my_deprecated_function():
+            pass
+
+    with pytest.raises(DeprecationWarning):
+        if c.deprecated(version=(1,0,0)):
+            pass
+
+def test_deprecation_remove_optional_noraise(capsys):
+    """ remove omitted should raise on verion.major+1"""
+
+    c = Context(version=(1,5,0))
+
+    @c.deprecated(version=(1,0,0))
+    def my_deprecated_function():
+        pass
+
+    if c.deprecated(version=(1,0,0)):
+        pass
+
+
+
