@@ -90,21 +90,3 @@ def test_deprecation_remove_optional_noraise(capsys):
         pass
 
 
-def test_deprecation_predicate(capsys):
-    """
-    Context should be able to get a predicate
-    """
-
-    c = Context(version=lambda :(2,0,0))
-    with pytest.raises(DeprecationWarning):
-        @c.deprecated(version=(1,0,0))
-        def my_deprecated_function():
-            pass
-
-    with pytest.raises(DeprecationWarning):
-        if c.deprecated(version=(1,0,0)):
-            pass
-
-
-
-

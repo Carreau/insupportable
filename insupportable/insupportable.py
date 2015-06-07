@@ -242,8 +242,9 @@ class Context(object):
     def set_warner(self, function):
         self._warner = function
 
-    def deprecated(self, version, remove=None):
-        return DecoratorBooleanMixin(self._version, self._warner, version, remove)
+    def deprecated(self, version, remove=None, pyremove=None):
+        return DecoratorBooleanMixin(self._version, self._warner, version, remove, 
+                pyremove, pysupport=self._pysupport, pyversion=self._pyversion)
 
 
 
@@ -255,7 +256,7 @@ class DecoratorBooleanMixin(object):
     """
 
 
-    def __init__(self, package_version, warner, version, remove):
+    def __init__(self, package_version, warner, version, remove, pyremove, pysupport, pyversion):
         if not remove:
             remove = [r for r in version]
             remove [0] += 1
@@ -264,13 +265,20 @@ class DecoratorBooleanMixin(object):
         self._warner = warner
         self._version = version
         self._remove = remove
+        self._pyremove = pyremove
+        self._pysupport = pysupport
+        self._pyversion = pyversion
 
     @property
     def _deprecation_pending(self):
+        if not self._package_version:
+            return False
         return  self._package_version >= self._version
 
     @property
     def _deprecation_reached(self):
+        if not self._package_version:
+            return False
         return self._package_version >= self._remove
 
     def _on_deprecation_pending(self):
@@ -294,6 +302,10 @@ class DecoratorBooleanMixin(object):
 
         """
 
+        if self._pysupport and self._pyremove:
+            if self._pysupport > self._pyremove :
+                raise DeprecationWarning("this can be removed")
+
         if self._deprecation_reached :
             self._on_deprecation_reached()
 
@@ -305,6 +317,9 @@ class DecoratorBooleanMixin(object):
 
 
     def __eq__(self, other):
+        if self._pysupport and self._pyremove:
+            if self._pysupport > self._pyremove :
+                raise DeprecationWarning("Probably unused branch")
         if self._deprecation_pending:
             self._on_deprecation_pending()
         if self._deprecation_reached:

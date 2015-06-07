@@ -55,15 +55,45 @@ def test_deprecation_predicate(capsys):
 
     c = Context(pyversion=lambda:sys.version_info, pysupport=lambda:(3,0,0))
 
-    return
-#    with pytest.raises(DeprecationWarning):
-#        @c.deprecated(version=(1,0,0))
-#        def my_deprecated_function():
-#            pass
-#
-#    with pytest.raises(DeprecationWarning):
-#        if c.deprecated(version=(1,0,0)):
-#            pass
+
+def test_deprecation_predicate_py(capsys):
+    """
+    should raise on deprecated python versions
+    """
+
+    import sys
+    import pytest
+
+    c = Context(pyversion=lambda:sys.version_info, pysupport=lambda:(4,0,0))
+
+    with pytest.raises(DeprecationWarning):
+        @c.deprecated(version=(1,0,0), pyremove=(1,0,0))
+        def my_deprecated_function():
+            pass
+
+    with pytest.raises(DeprecationWarning):
+        if c.deprecated(version=(1,0,0), pyremove=(1,0,0)):
+            pass
+
+def test_deprecation_predicate_py_2(capsys):
+    """
+    should raise on deprecated python versions
+    """
+
+    import sys
+    import pytest
+
+    c = Context(pyversion=lambda:sys.version_info, pysupport=lambda:(2,0,0))
+
+    with pytest.raises(DeprecationWarning):
+        @c.deprecated(version=(1,0,0), pyremove=(1,0,0))
+        def my_deprecated_function():
+            pass
+
+    with pytest.raises(DeprecationWarning):
+        if c.deprecated(version=(1,0,0), pyremove=(1,0,0)):
+            pass
+
 
 
 
