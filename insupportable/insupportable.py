@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import warnings; warnings.simplefilter('default')
+
+
 import sys
-from  warnings import warn 
+from  warnings import warn
 import warnings
 
 
@@ -26,7 +29,7 @@ class Dum(object):
 
 
 PY3 = Dum('PY3', sys.version_info >= (3,))
-PY2 = Dum('PY2', sys.version_info < (3,)) 
+PY2 = Dum('PY2', sys.version_info < (3,))
 
 
 _aliases  = {
@@ -64,7 +67,7 @@ for i in range(7):
 
 class Feature(object):
     """
-    A feature/option/patch...etc that might be dropped at some point in the future. 
+    A feature/option/patch...etc that might be dropped at some point in the future.
 
     """
 
@@ -77,7 +80,7 @@ class DiscreatFeature(Feature):
     pass
 
 class VersionnedFeature(Feature):
-    
+
     def __init__(self, name, predicate):
         super().__init__(name, predicate)
 
@@ -122,7 +125,7 @@ class S(object):
 
 
         self.known_keys = []
-        for feat in self.featuresets : 
+        for feat in self.featuresets :
             self.known_keys.extend(feat.keys())
 
         self.known_keys=set(self.known_keys)
@@ -142,23 +145,23 @@ class S(object):
 
     def _alone_version(self, version):
         for fset in self.featuresets:
-            if version in fset: 
+            if version in fset:
                 return len([v for k,v in fset.items() if v])==1
 
 
-    def _get_featureset_support(self, version): 
+    def _get_featureset_support(self, version):
         for fset in self.featuresets:
-            if _aliases.get(version, version) in fset: 
+            if _aliases.get(version, version) in fset:
                 return fset[_aliases.get(version, version)]
         return False
 
-        
 
 
-    def support(self, version): 
+
+    def support(self, version):
         """
-        return `True` if current python version match version passed. 
-        
+        return `True` if current python version match version passed.
+       
         raise a deprecation warning if only PY2 or PY3 is supported as you probably
         have a conditional that should be removed. 
 
@@ -205,42 +208,107 @@ class CFunction(object):
 #######
 
 class Context(object):
-    pass
 
     def _default_warner(self, message, stacklevel=1):
         """
-        default warner function use a pending deprecation warning, 
+        default warner function use a pending deprecation warning,
         and correct for the correct stacklevel
         """
         return warnings.warn(message,
                 PendingDeprecationWarning,
-                stacklevel=stacklevel+2)
+                stacklevel=stacklevel+4)
 
 
 
     def __init__(self, version):
+        """
+        A configuration context
+
+        This hold the configuration for the current project
+        and will decide how the different methods will act.
+
+        """
         self._version = version
-        self._warner = lambda m,s : warnings.warn(m, PendingDeprecationWarning, stacklevel=s)
+        self._warner = self._default_warner
 
     def set_warner(self, function):
         self._warner = function
 
     def deprecated(self, version, remove):
-        if self._version >= remove :
-            raise DeprecationWarning('deprecated')
-        def wrapper():
-            if self._version >= version:
-                 self._warner("this is pending deprecation")
-            else :
-                raise ValueError('deprecation version earlier than package version')
+        return DecoratorBooleanMixin(self._version, self._warner, version, remove)
+        # if self._version >= remove :
+        #     raise DeprecationWarning('deprecated')
+        # def wrapper():
+        #     if self._version >= version:
+        #          self._warner("this is pending deprecation")
+        #     else :
+        #         raise ValueError('deprecation version earlier than package version')
 
-        def wrapping(function):
-            def fun(*args, **kwargs):
-                wrapper()
-                function(*args, **kwargs)
-            return fun
-        return wrapping
+        # def wrapping(function):
+        #     def fun(*args, **kwargs):
+        #         wrapper()
+        #         function(*args, **kwargs)
+        #     return fun
+        # return wrapping
 
+
+class DecoratorBooleanMixin(object):
+    """ mixin object that trigger some action when tested:
+    - for equlity
+    - for nothingness
+    - as a decorator.
+    """
+
+
+    def __init__(self, package_version, warner, version, remove):
+        self._package_version = package_version
+        self._warner = warner
+        self._version = version
+        self._remove = remove
+
+    @property
+    def _deprecation_pending(self):
+        return  self._package_version >= self._version
+
+    @property
+    def _deprecation_reached(self):
+        return self._package_version >= self._remove
+
+    def _on_deprecation_pending(self):
+        self._warner("this is pending deprecation")
+
+    def _on_deprecation_reached(self):
+        raise DeprecationWarning('deprecated')
+
+
+
+
+
+    def __call__(self, function):
+        """ call to setup parameter """
+
+        if self._deprecation_reached :
+            self._on_deprecation_reached()
+
+        def _inner(*arg, **kwarg):
+            self._on_deprecation_pending()
+            return function(*arg, **kwarg)
+
+        return _inner
+
+
+    def __eq__(self, other):
+        if self._deprecation_pending:
+            self._on_deprecation_pending()
+        if self._deprecation_reached:
+            self._on_deprecation_reached()
+        return True
+
+    def __zero__(self, other):
+        pass
+
+    def __bool__(self):
+        return self.__eq__(True)
 
 
 support = CFunction('support')
