@@ -207,17 +207,28 @@ class CFunction(object):
 class Context(object):
     pass
 
+    def _default_warner(self, message, stacklevel=1):
+        """
+        default warner function use a pending deprecation warning, 
+        and correct for the correct stacklevel
+        """
+        return warnings.warn(message,
+                PendingDeprecationWarning,
+                stacklevel=stacklevel+2)
+
+
+
     def __init__(self, version):
         self._version = version
-        self._warner = warnings.warn
+        self._warner = lambda m,s : warnings.warn(m, PendingDeprecationWarning, stacklevel=s)
 
     def set_warner(self, function):
         self._warner = function
 
     def deprecated(self, version, remove):
+        if self._version >= remove :
+            raise DeprecationWarning('deprecated')
         def wrapper():
-            if self._version >= remove :
-                raise DeprecationWarning('deprecated')
             if self._version >= version:
                  self._warner("this is pending deprecation")
             else :
